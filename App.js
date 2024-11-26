@@ -1,21 +1,32 @@
-import { StyleSheet, Text, View, Button, Alert, Platform } from 'react-native';
-import qs from 'qs';
-import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
+import React, { useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 export default function App() {
 
+  const webviewRef = useRef(null);
+
+  // JavaScript to first close the modal and then click the "English" button
+  const script = `
+    (function() {
+      // First, try to close the modal
+      const closeButton = document.querySelector('button[data-dismiss="modal"]');
+      if (closeButton) {
+        closeButton.click();
+        console.log('Modal closed');
+      }
+    })();
+    true;
+  `;
+
   return (
     <View style={styles.container}>
-      {/* <Button
-        onPress={onPressLearnMore}
-        title="Download Fmb"
-      /> */}
       <WebView
-        source={{ uri: 'https://reactnative.dev/' }}
+        ref={webviewRef}
+        source={{ uri: 'https://eservices.tn.gov.in/eservicesnew/home.html' }}
         style={{ flex: 1 }}
-        injectedJavaScript={`const meta = document.createElement('meta'); meta.setAttribute('content', 'width=width, initial-scale=0.1, maximum-scale=0.5, user-scalable=2.0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta); `}
+        injectedJavaScript={script}
+
       />
     </View>
   );
@@ -24,8 +35,5 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#fff',
-    // alignItems: 'center',
-    // justifyContent: 'center',
   },
 });
