@@ -1,95 +1,106 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Alert } from 'react-native';
-import axios from 'axios';
-import qs from 'qs'
+import { StyleSheet, Text, View, Button, Alert, Platform } from 'react-native';
+import qs from 'qs';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-
-// import { fetch } from 'react-native-ssl-pinning';
-// Optional if you want to share the file
-
+import { WebView } from 'react-native-webview';
 
 export default function App() {
-
-
   const onPressLearnMore = async () => {
-
-    let data = qs.stringify({
-      'state': '33',
-      'giscode': 'S0809011169',
-      'plotno': '',
-      'scale': '0',
-      'width': '210',
-      'height': '297',
-      'localLang': 'false'
-    });
-
-    let config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'https://collabland-tn.gov.in/APIServices/rest/Collabland/FMBMapServicePDF',
-      headers: {
-        'Host': 'collabland-tn.gov.in',
-        'Content-Length': '81',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Sec-Ch-Ua': '"Not?A_Brand";v="99", "Chromium";v="130"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'X-Requested-With': 'XMLHttpRequest',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.70 Safari/537.36',
-        'Accept': '*/*',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Origin': 'https://collabland-tn.gov.in',
-        'Sec-Fetch-Site': 'same-origin',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Dest': 'empty',
-        'Referer': 'https://collabland-tn.gov.in/APIServices/FMBMapService.jsp',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Priority': 'u=1, i',
-        // 'Cookie': 'JSESSIONID=75868EF473D135614A8F54414E45377D'
-      },
-      data: data
-    };
-
     try {
-      const response = await axios.request(config);
-      const base64String = response.data.success; // Assuming this is the base64 string
+      // Show loading indicator
+      Alert.alert('Downloading...', 'Please wait while we download your PDF');
+
+      const formData = {
+        'state': '33',
+        'giscode': 'S0809011169',
+        'plotno': '',
+        'scale': '0',
+        'width': '210',
+        'height': '297',
+        'localLang': 'false'
+      };
+
+      const response = await fetch(
+        'https://collabland-tn.gov.in/APIServices/rest/Collabland/FMBMapServicePDF',
+        {
+          method: 'POST',
+          headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Connection': 'keep-alive',
+            'User-Agent': Platform.select({
+              android: 'Mozilla/5.0 (Linux; Android 10; Android SDK built for x86)',
+              ios: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)'
+            }),
+
+          },
+          body: qs.stringify(formData)
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const base64String = data.success;
 
       if (base64String) {
-        // Define the file path
-        const path = FileSystem.documentDirectory + "test1.pdf";
+        // For Android, we'll use the cache directory
+        const path = Platform.OS === 'android'
+          ? `${FileSystem.cacheDirectory}test1.pdf`
+          : `${FileSystem.documentDirectory}test1.pdf`;
 
-        // Write the base64 string to a PDF file
         await FileSystem.writeAsStringAsync(path, base64String, {
           encoding: FileSystem.EncodingType.Base64,
         });
 
         Alert.alert('PDF saved!', 'The PDF has been saved successfully.');
 
-        // Optional: Share the PDF if supported
         if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(path, { mimeType: 'application/pdf' });
+          try {
+            await Sharing.shareAsync(path, {
+              mimeType: 'application/pdf',
+              UTI: 'com.adobe.pdf',
+              dialogTitle: 'Open PDF with...'
+            });
+          } catch (shareError) {
+            console.error('Sharing error:', shareError);
+            Alert.alert('Sharing failed', 'Could not share the PDF file');
+          }
         } else {
           Alert.alert('Sharing not available', 'Sharing is not supported on this device');
         }
       } else {
         Alert.alert('Error', 'Received empty data from the server.');
       }
-
     } catch (error) {
-      console.error('Error:', error);
-      Alert.alert('Error', 'Failed to fetch and save the PDF.');
-    }
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack
+      });
 
-  }
+      Alert.alert(
+        'Error',
+        Platform.select({
+          android: `Download failed: ${error.message}`,
+          ios: 'Failed to fetch and save the PDF.'
+        })
+      );
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Button
+      {/* <Button
         onPress={onPressLearnMore}
         title="Download Fmb"
+      /> */}
+      <WebView
+        source={{ uri: 'https://reactnative.dev/' }}
+        style={{ flex: 1 }}
+        injectedJavaScript={`const meta = document.createElement('meta'); meta.setAttribute('content', 'width=width, initial-scale=0.1, maximum-scale=0.5, user-scalable=2.0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta); `}
       />
-      <StatusBar style="auto" />
     </View>
   );
 }
@@ -97,8 +108,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    // backgroundColor: '#fff',
+    // alignItems: 'center',
+    // justifyContent: 'center',
   },
 });
