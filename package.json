@@ -14,11 +14,14 @@
     "expo-file-system": "~17.0.1",
     "expo-sharing": "^12.0.1",
     "expo-status-bar": "~1.12.1",
+    "https": "^1.0.0",
     "qs": "^6.13.0",
     "react": "18.2.0",
     "react-native": "0.74.5",
+    "react-native-fs": "^2.20.0",
+    "react-native-share": "^11.0.4",
     "react-native-ssl-pinning": "^1.5.8",
-    "react-native-webview": "^13.6.4"
+    "react-native-webview": "^13.6.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

@@ -1,40 +1,34 @@
+import React, { useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { StyleSheet } from 'react-native';
 
 export default function App() {
 
-  const htmlContent = `
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
-      <script defer src="https://pyscript.net/latest/pyscript.js"></script>
-  </head>
-  <body>
-      <h1>PyScript in React Native</h1>
-      <py-script>
-          def greet(name):
-              return f"Hello, {name}!"
+  const webviewRef = useRef(null);
 
-          name = "React Native"
-          result = greet(name)
-          print(result)
-      </py-script>
-  </body>
-  </html>
-`;
-
-
+  // JavaScript to first close the modal and then click the "English" button
+  const script = `
+    (function() {
+      // First, try to close the modal
+      const closeButton = document.querySelector('button[data-dismiss="modal"]');
+      if (closeButton) {
+        closeButton.click();
+        console.log('Modal closed');
+      }
+    })();
+    true;
+  `;
 
   return (
-    <WebView
-      style={styles.container}
-      // source={{ uri: 'https://expo.dev' }}
-      originWhitelist={['*']}
-      source={{ html: htmlContent }}
-    // style={{ flex: 1 }}
+    <View style={styles.container}>
+      <WebView
+        ref={webviewRef}
+        source={{ uri: 'https://eservices.tn.gov.in/eservicesnew/home.html' }}
+        style={{ flex: 1 }}
+        injectedJavaScript={script}
 
-    />
+      />
+    </View>
   );
 }
 
