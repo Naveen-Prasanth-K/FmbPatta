@@ -1,7 +1,11 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const FMBSketchScript = `
+export default function FMBSketchScript(data) {
+
+  console.log(`data = ${JSON.stringify(data)}`);
+
+  return `
 (function() {
   function sendMessageToReactNative(message) {
     window.ReactNativeWebView.postMessage(message);
@@ -32,24 +36,24 @@ const FMBSketchScript = `
   }
 
   function selectDistrict() {
-      const districtDropdown = document.querySelector("#districtCode");
-      if (districtDropdown) {
-          districtDropdown.value = '10';
-          const changeEvent = new Event("change", { bubbles: true });
-          districtDropdown.dispatchEvent(changeEvent);
-          sendMessageToReactNative("District selected: Erode");
-      } else {
-          sendMessageToReactNative('District dropdown not found');
-      }
+    const districtDropdown = document.querySelector("#districtCode");
+    if (districtDropdown) {
+        districtDropdown.value = '${data.districtId}';
+        const changeEvent = new Event("change", { bubbles: true });
+        districtDropdown.dispatchEvent(changeEvent);
+        sendMessageToReactNative("District selected: ${data.districtName}");
+    } else {
+        sendMessageToReactNative('District dropdown not found');
+    }
   }
 
   function selectTaluk() {
     const talukDropdown = document.querySelector("#talukCode");
     if (talukDropdown) {
-      talukDropdown.value = '33/Y';
+      talukDropdown.value = '${data.talukId}';
       const changeEvent = new Event("change", { bubbles: true });
       talukDropdown.dispatchEvent(changeEvent);
-      sendMessageToReactNative("Taluk selected: 33/Y");
+      sendMessageToReactNative("Taluk selected: ${data.talukName}");
     } else {
       sendMessageToReactNative("Taluk dropdown not found"); 
     }
@@ -58,10 +62,10 @@ const FMBSketchScript = `
   function selectVillage() {
     const villageDropdown = document.querySelector("#villageCode");
     if (villageDropdown) {
-      villageDropdown.value = '028';
+      villageDropdown.value = '${data.villageId}';
       const changeEvent = new Event("change", { bubbles: true });
       villageDropdown.dispatchEvent(changeEvent);
-      sendMessageToReactNative("Village selected: 028");
+      sendMessageToReactNative("Village selected: ${data.villageName}");
     } else {
       sendMessageToReactNative("Village dropdown not found");
     }
@@ -150,7 +154,5 @@ const FMBSketchScript = `
     }, 1000); // Wait for the English page to load5
   }, 1000); // Initial delay for modal close2
 })();
-true;
-`;
-
-export default FMBSketchScript
+true;`;
+}
