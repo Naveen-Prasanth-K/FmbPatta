@@ -29,11 +29,22 @@
       "allowBackup": true,
       "usesCleartextTraffic": true,
       "config": {
-        "networkSecurityConfig": "./network-security-config"
+        "networkSecurityConfig": "./network-security-config",
+        "googleMaps": {
+          "apiKey": "AIzaSyCSypOznNZ_lY7djECM7QQkJhvxyAQkA04"
+        }
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ]
+    ]
   }
 }
