@@ -169,6 +169,8 @@ export default function App() {
                 onPress={onPressLearnMore}
                 title="Download Fmb"
             />
+
+
             <StatusBar style="auto" />
         </View>
     );
